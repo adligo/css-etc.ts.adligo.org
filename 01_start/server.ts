@@ -1,10 +1,13 @@
 import express from "express";
-import session from "express-session";
 import path from "path";
 import * as http from 'http';
 import { RouteableUrl } from './src/models/http/RouteableUrl.mjs';
 import { ServerUrlRouter } from './src/models/http/ServerUrlRouter.mjs';
+import { sendIndexHtml } from './src/models/http/Index.mjs';
+import {TrackJsHandler} from './src/handlers/api_v1/TrackJsHandler.mjs';
+import {EnableCookiesHandler} from './src/handlers/api_v1/EnableCookiesHandler.mjs';
 import { Request, Response, NextFunction } from 'express';
+import cookieParser from 'cookie-parser';
 
 import * as fs from 'fs';
 //import { readFileSync } from 'node:fs/promises';
@@ -75,9 +78,14 @@ app.use((req, res, next) => {
 let router = new ServerUrlRouter(
   sendIndexHtml,
   send404,
-  DEBUG
+  DEBUG, true
 );
-app.use(router.getRouterFunction);
+app.use(cookieParser());
+router.addHandler("api_v1/log-js", TrackJsHandler);
+router.addHandler("api_v1/enableCookies", EnableCookiesHandler);
+//Ignore .well-known for Google's Chrome Dev Tools
+router.addIgnore(".well-known");
+app.use(router.routerFunction);
 
 
 app.listen(PORT, () => {
@@ -88,6 +96,3 @@ function send404(req: Request, res: Response) {
   res.status(404).send('Not Found');
 }
 
-function sendIndexHtml(req: Request, res: Response) {
-  res.status(200).sendFile(path.join(RUN_PATH, "index.html"));
-}

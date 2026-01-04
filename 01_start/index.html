@@ -18,5 +18,13 @@ Note this can be done via vite with;
 npm run dev2
 </pre></code>
 
+<form onSubmit="api_v1/enableCookies?aSessionId=123" >
+  <input value="Allow Cookies?" type="submit" />
+</form>
+
+<script>
+var img = new Image();
+img.src = "/api_v1/log-js?aSessionId=123&timestamp=" + new Date().getTime();
+</script>
 </body>
 </html>

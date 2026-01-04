@@ -1,18 +1,27 @@
 
 export class RouteableUrl {
-  private url: URL;
-  private pathParts: string[];
+  private _url: URL;
+  private _pathParts: string[];
 
   constructor(req: Request) {
-    this.url = new URL(req.url!, `http://${req.headers.host}`);
-    this.pathParts = this.url.pathname.split('/').filter(Boolean);
+    this._url = new URL(req.url!, `http://${req.headers.host}`);
+    this._pathParts = this._url.pathname.split('/').filter(Boolean);
   }
 
-  get getPathParts(): string[] {
-    return this.pathParts;
+  get pathParts(): string[] {
+    return this._pathParts;
   }
 
-  get getPathPartsCount(): number {
+  get pathPartsCount(): number {
     return this.pathParts.length;
+  }
+
+  hasKey(key: string): boolean {
+    return this._url.searchParams.has(key);
+  }
+
+  queryValue(key: string): string | null {
+    console.log("in RouteableUrl queryValue for key '" + key + "' value '" + this._url.searchParams.get(key) + "' @ \n" + this._url.toString());
+    return this._url.searchParams.get(key);
   }
 }

@@ -26,16 +26,15 @@ export class AHttpSession {
     }
 
     public static readonly GET_A_SESSION_ID_FROM_COOKIE = (req: Request): string | null => {
+      console.log("req.cookies are " + req.cookies)
        return req.cookies?.aSessionId;
     }
 
     public static readonly HAS_A_SESSION = (req: Request, routeableUrl: RouteableUrl): boolean => {
-       if (AHttpSession.GET_A_SESSION_ID_FROM_COOKIE(req) === null) {
+        let aSessionId = AHttpSession.GET_A_SESSION_ID(req, routeableUrl);
+        if (aSessionId === null || aSessionId === undefined) {
             return false;
-       }
-       if (AHttpSession.GET_A_SESSION_ID_FROM_URL(routeableUrl) === null) {
-            return false;
-       }
+        }
        return true;
     }
 
@@ -54,7 +53,16 @@ export class AHttpSession {
     }
 
     private _sessionData: Map<string, any> = new Map();
-    private _aSessionId: string = AHttpSession.CREATE_A_SESSION_ID();
+    private _aSessionId: string;
+
+    constructor(aSessionId?: string) {
+        if (aSessionId === null || aSessionId === undefined) {
+            this._aSessionId = AHttpSession.CREATE_A_SESSION_ID();
+        } else {
+            this._aSessionId = aSessionId;
+        }
+    }
+
     hasKey(key: string): boolean {
         return this._sessionData.has(key);
     }
@@ -90,6 +98,11 @@ export class AHttpMapSessions {
         session.setValue(AHttpSession.A_SESSION_JS_ON, false);
         this.sessions.set(session.id, session);
         return session;
+    }
+
+    restoreSession(aSessionId: string): void {
+        let session = new AHttpSession(aSessionId);
+        this.sessions.set(aSessionId, session);
     }
 
     logSessions(): void {   

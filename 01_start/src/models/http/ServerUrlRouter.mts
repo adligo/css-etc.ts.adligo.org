@@ -216,10 +216,19 @@ export class ServerUrlRouter {
         if (aSessionId != null) {
           let aSession = this.sessions.getSession(aSessionId);   
           if (aSession === null || aSession === undefined) {
-            let aSession = this.sessions.createSession();
-            console.log("Unable to find session for aSessionId '" + aSessionId + "', created new AHttpSession with id '" + aSession.id + "'");
-            req.session = aSession;
-            this.sessions.logSessions();
+            console.log("Unable to find session for aSessionId '" + aSessionId + "'");
+            if (AHttpSession.GET_A_SESSION_ID_FROM_COOKIE(req) === aSessionId) {
+              console.log("Restored the following session from a cookie aSessionId '" + aSessionId + "'");
+              this.sessions.restoreSession(aSessionId);
+              req.session = this.sessions.getSession(aSessionId);
+              req.session.setValue(AHttpSession.A_SESSION_COOKIES_APPROVED, true);
+            } else {
+              let aSession = this.sessions.createSession();
+              console.log("Created new AHttpSession with id '" + aSession.id + "', the previous aSessionId '" + aSessionId + 
+                "' appears to have come from a url query parameter and the server that crashed.");
+              req.session = aSession;
+              this.sessions.logSessions();
+            }
           } else {
             console.log("Found existing AHttpSession with id '" + aSession.id + "' @ \n" + req.url);
             req.session = aSession;

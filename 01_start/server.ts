@@ -2,27 +2,27 @@ import express from "express";
 import session from "express-session";
 import path from "path";
 import * as http from 'http';
-import {RouteableUrl} from './src/models/http/RouteableUrl.mjs';
-import {ServerUrlRouter} from './src/models/http/ServerUrlRouter.mjs';
+import { RouteableUrl } from './src/models/http/RouteableUrl.mjs';
+import { ServerUrlRouter } from './src/models/http/ServerUrlRouter.mjs';
 import { Request, Response, NextFunction } from 'express';
 
 import * as fs from 'fs';
 //import { readFileSync } from 'node:fs/promises';
 import { join } from 'node:path';
 
-const CSS_ETC_HOME : string = process.env.CSS_ETC_HOME as string;
+const CSS_ETC_HOME: string = process.env.CSS_ETC_HOME as string;
 const RUN_PATH = process.cwd();
 
 function openConfigFile() {
   try {
     // It's best practice to use path.join to handle slashes correctly across OSs
     const filePath = join(CSS_ETC_HOME, 'config.json');
-    
+
     // 'utf8' encodes the buffer into a readable string
     const data = fs.readFileSync(filePath, 'utf8').toString();
-    
+
     console.log("In server.ts read file " + filePath + " with data\n" + data);
-    
+
     return JSON.parse(data);
   } catch (err) {
     console.error('Error reading file:', err);
